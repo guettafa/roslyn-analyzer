@@ -34,7 +34,7 @@ namespace Analyzer.Test
         #region Tests
 
         [Test]
-        public async Task When_ImmuExpressionWrittenWrongWay_HasDiagnostic()
+        public async Task When_PrivateClassMembersWrongNaming_HasDiagnostic()
         {
             string code = @"
                 using System.Collections.Immutable;
@@ -55,7 +55,7 @@ namespace Analyzer.Test
             Assert.Multiple(() =>
             {
                 Assert.That(diagnostics.Length, Is.EqualTo(1));
-                Assert.That(diagnostic.Id, Is.EqualTo("BadWayImmutableArray"));
+                Assert.That(diagnostic.Id, Is.EqualTo("NMCVPRVM"));
                 Assert.That(diagnostic.Descriptor.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning));
                 Assert.That(locationSpanDiagnostic.StartLinePosition.Line, Is.EqualTo(7)); // Check if on line 7
             });
@@ -77,7 +77,7 @@ namespace Analyzer.Test
 
             var compilationWithAnalyzers = compilation.WithAnalyzers(
                 ImmutableArray.Create<DiagnosticAnalyzer>(
-                    new CreationAnalyzer())
+                    new ConventionAnalyzer())
                 );
 
             return await compilationWithAnalyzers.GetAllDiagnosticsAsync();
