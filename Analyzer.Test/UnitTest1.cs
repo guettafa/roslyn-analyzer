@@ -69,8 +69,7 @@ namespace Analyzer.Test
         {
             solution = solution.AddDocument(DocumentId.CreateNewId(projectId), "File.cs", code);
 
-            var project = 
-                solution.GetProject(projectId)
+            var project = solution.GetProject(projectId)
                 .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
                 .AddMetadataReferences(GetAllReferencesNeededForType(typeof(ImmutableArray)));
 
