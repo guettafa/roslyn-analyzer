@@ -35,8 +35,6 @@ namespace Analyzer.Core
                 SyntaxKind.InvocationExpression);
         }
 
-        // Immutable<int>.Empty.Add(1)
-
         private void Analyze(SyntaxNodeAnalysisContext context)
         {
             var node = (InvocationExpressionSyntax) context.Node;
@@ -46,28 +44,13 @@ namespace Analyzer.Core
                 return;
 
             // Is not a  member access expression
-            if (!(node.Expression is MemberAccessExpressionSyntax addAccess))
+            if (!(node.Expression is MemberAccessExpressionSyntax addAccess) || addAccess.Name.Identifier.Text != "Add")
                 return;
 
-            if (addAccess.Name.Identifier.Text != "Add")
+            if (!(addAccess.Expression is MemberAccessExpressionSyntax emptyAccess) || emptyAccess.Name.Identifier.Text != "Empty")
                 return;
 
-            if (!(addAccess.Expression is MemberAccessExpressionSyntax emptyAccess))
-                return;
-
-            if (emptyAccess.Name.Identifier.Text != "Empty")
-                return;
-
-
-            if (!(emptyAccess.Expression is GenericNameSyntax immutableArray))
-                return;
-
-            //ImmutableArray<int>.Empty.Add(1);
-
-            if (immutableArray.TypeArgumentList.Arguments.Count != 1)
-                return;
-
-            if (immutableArray.Identifier.Text != "ImmutableArray") 
+            if (!(emptyAccess.Expression is GenericNameSyntax immutableArray) || immutableArray.TypeArgumentList.Arguments.Count != 1 || immutableArray.Identifier.Text != "ImmutableArray")
                 return;
 
             context.ReportDiagnostic(Diagnostic.Create(
