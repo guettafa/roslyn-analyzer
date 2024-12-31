@@ -34,7 +34,7 @@ namespace Analyzer.Test
         #region Tests
 
         [Test]
-        public async Task Test1()
+        public async Task When_ImmuExpressionWrittenWrongWay_HasDiagnostic()
         {
             string code = @"
                 using System.Collections.Immutable;
@@ -52,11 +52,13 @@ namespace Analyzer.Test
             var diagnostic = diagnostics[0];
             var locationSpanDiagnostic = diagnostic.Location.GetLineSpan();
 
-            Assert.That(diagnostics.Length, Is.EqualTo(1));
-            Assert.That(diagnostic.Id, Is.EqualTo("BadWayImmutableArray"));
-            Assert.That(diagnostic.Descriptor.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning));
-            Assert.That(locationSpanDiagnostic.StartLinePosition.Line, Is.EqualTo(7)); // Check if on line 7
-
+            Assert.Multiple(() =>
+            {
+                Assert.That(diagnostics.Length, Is.EqualTo(1));
+                Assert.That(diagnostic.Id, Is.EqualTo("BadWayImmutableArray"));
+                Assert.That(diagnostic.Descriptor.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning));
+                Assert.That(locationSpanDiagnostic.StartLinePosition.Line, Is.EqualTo(7)); // Check if on line 7
+            });
         }
 
         #endregion
@@ -67,12 +69,10 @@ namespace Analyzer.Test
         {
             solution = solution.AddDocument(DocumentId.CreateNewId(projectId), "File.cs", code);
 
-            var project = solution.GetProject(projectId);
-
-            project = project
+            var project = 
+                solution.GetProject(projectId)
                 .AddMetadataReference(MetadataReference.CreateFromFile(typeof(object).Assembly.Location))
                 .AddMetadataReferences(GetAllReferencesNeededForType(typeof(ImmutableArray)));
-
 
             var compilation = await project.GetCompilationAsync();
 
