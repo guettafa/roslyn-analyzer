@@ -34,9 +34,32 @@ namespace Analyzer.Test
         #region Tests
 
         [Test]
+        public async Task When_PublicClassPropertyWrontNaming_HasDiagnostic()
+        {
+            const string code = @"
+                internal class TestClass
+                {
+                    public string myProperty { get; set; }
+                }
+            ";
+
+            var diagnostics = await GetDiagnostics(code);
+            var diagnostic = diagnostics[0];
+            var locationSpanDiagnostic = diagnostic.Location.GetLineSpan();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(diagnostics.Length, Is.EqualTo(1));
+                Assert.That(diagnostic.Id, Is.EqualTo("NMCVPUBP"));
+                Assert.That(diagnostic.Descriptor.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning));
+                Assert.That(locationSpanDiagnostic.StartLinePosition, Is.EqualTo(3));
+            });
+        }
+
+        [Test]
         public async Task When_PrivateClassMembersWrongNaming_HasDiagnostic()
         {
-            string code = @"
+            const string code = @"
                 using System.Collections.Immutable;
 
                 internal class Program 
@@ -57,7 +80,7 @@ namespace Analyzer.Test
                 Assert.That(diagnostics.Length, Is.EqualTo(1));
                 Assert.That(diagnostic.Id, Is.EqualTo("NMCVPRVM"));
                 Assert.That(diagnostic.Descriptor.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning));
-                Assert.That(locationSpanDiagnostic.StartLinePosition.Line, Is.EqualTo(7)); // Check if on line 7
+                Assert.That(locationSpanDiagnostic.StartLinePosition.Line, Is.EqualTo(7)); 
             });
         }
 
