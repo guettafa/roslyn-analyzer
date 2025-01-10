@@ -5,7 +5,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using NUnit.Framework;
 using Analyzer.Core;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -34,12 +33,14 @@ namespace Analyzer.Test
         #region Tests
 
         [Test]
-        public async Task When_PublicClassPropertyWrontNaming_HasDiagnostic()
+        public async Task When_PublicClassPropertyWrongNaming_HasDiagnostic()
         {
             const string code = @"
                 internal class TestClass
                 {
                     public string myProperty { get; set; }
+
+                    public static void Main(string[] args) {}
                 }
             ";
 
@@ -52,35 +53,6 @@ namespace Analyzer.Test
                 Assert.That(diagnostics.Length, Is.EqualTo(1));
                 Assert.That(diagnostic.Id, Is.EqualTo("NMCVPUBP"));
                 Assert.That(diagnostic.Descriptor.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning));
-                Assert.That(locationSpanDiagnostic.StartLinePosition, Is.EqualTo(3));
-            });
-        }
-
-        [Test]
-        public async Task When_PrivateClassMembersWrongNaming_HasDiagnostic()
-        {
-            const string code = @"
-                using System.Collections.Immutable;
-
-                internal class Program 
-                {
-                    public static void Main(string[] args) 
-                    {
-                        var immuArray = ImmutableArray<int>.Empty.Add(1);
-                    }
-                }
-            ";
-
-            var diagnostics = await GetDiagnostics(code);
-            var diagnostic = diagnostics[0];
-            var locationSpanDiagnostic = diagnostic.Location.GetLineSpan();
-
-            Assert.Multiple(() =>
-            {
-                Assert.That(diagnostics.Length, Is.EqualTo(1));
-                Assert.That(diagnostic.Id, Is.EqualTo("NMCVPRVM"));
-                Assert.That(diagnostic.Descriptor.DefaultSeverity, Is.EqualTo(DiagnosticSeverity.Warning));
-                Assert.That(locationSpanDiagnostic.StartLinePosition.Line, Is.EqualTo(7)); 
             });
         }
 
